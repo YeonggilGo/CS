@@ -407,9 +407,61 @@ vertex 의 adjacent list 를 확인해봐야 하므로 vertex 간 연결되어�
 
 초기화 작업으로 **edge 없이** vertex 들만으로 그래프를 구성한다. 그리고 weight 가 제일 작은 edge 부터 검토한다. 그러기 위해선 Edge Set 을 non-decreasing 으로 sorting 해야 한다. 그리고 가장 작은 weight 에 해당하는 edge 를 추가하는데 추가할 때 그래프에 cycle 이 생기지 않는 경우에만 추가한다. spanning tree 가 완성되면 모든 vertex 들이 연결된 상태로 종료가 되고 완성될 수 없는 그래프에 대해서는 모든 edge 에 대해 판단이 이루어지면 종료된다.
 
+```python
+def make_set(x):
+    p[x] = x
+    
+    
+def find_set(x):
+    if p[x] == x:
+        return x
+    else:
+        return find_set(p[x])
+
+    
+def union(x, y):
+    px = find_set(x)
+    py = find_set(y)
+    if rank[px] > rank[py]:
+        p[py] = px
+    else:
+        p[px] = py
+        if rank[px] == rank[py]:
+            rank[py] += 1
+   
+
+def mst():
+    cnt = 0			# edge 개수
+    total = 0		# weights 합
+    
+    for i in range(E):
+        p1 = find_set(MAP[i][0])
+        p2 = find_set(MAP[i][1])
+        if p1 != p2:	# cycle이 생성되지 않으면
+            total += MAP[i][2]
+            cnt += 1
+            union(p1, p2)
+        if cnt == V - 1:
+            break
+   return total
+
+
+V, E = map(int, input().split())
+edge = [list(map(int, input().split())) for i in range(E)]  #시작, 끝, 가중치
+edge.sort(key=lambda x : x[2])              # 간선을 가중치 기준으로 정렬
+p = [0] * V
+rank = [0] * V
+for i in range(V):
+    make_set(i)
+
+print(mst())
+```
+
+
+
 #### 어떻게 cycle 생성 여부를 판단하는가?
 
-Graph 의 각 vertex 에 `set-id`라는 것을 추가적으로 부여한다. 그리고 초기화 과정에서 모두 1~n 까지의 값으로 각각의 vertex 들을 초기화 한다. 여기서 0 은 어떠한 edge 와도 연결되지 않았음을 의미하게 된다. 그리고 연결할 때마다 `set-id`를 하나로 통일시키는데, 값이 동일한 `set-id`개수가 많은 `set-id` 값으로 통일시킨다.
+Graph 의 각 vertex 에 `set-id`(`rank`)라는 것을 추가적으로 부여한다. 그리고 초기화 과정에서 모두 1~n 까지의 값으로 각각의 vertex 들을 초기화 한다. 여기서 0 은 어떠한 edge 와도 연결되지 않았음을 의미하게 된다. 그리고 연결할 때마다 `set-id`를 하나로 통일시키는데, 값이 동일한 `set-id`개수가 많은 `set-id` 값으로 통일시킨다.
 
 #### Time Complexity
 
@@ -419,6 +471,37 @@ Graph 의 각 vertex 에 `set-id`라는 것을 추가적으로 부여한다. 그
 ### Prim Algorithm
 
 초기화 과정에서 한 개의 vertex 로 이루어진 초기 그래프 A 를 구성한다. 그리고나서 그래프 A 내부에 있는 vertex 로부터 외부에 있는 vertex 사이의 edge 를 연결하는데 그 중 가장 작은 weight 의 edge 를 통해 연결되는 vertex 를 추가한다. 어떤 vertex 건 간에 상관없이 edge 의 weight 를 기준으로 연결하는 것이다. 이렇게 연결된 vertex 는 그래프 A 에 포함된다. 위 과정을 반복하고 모든 vertex 들이 연결되면 종료한다.
+
+```python
+import heapq
+
+V, E = map(int, input().split())
+MAP = {i: [] for i in range(V)}
+for i in range(E):
+    s, e, c = map(int, input().split())
+    MAP[s].append([e, c])
+    MAP[e],append([s, c])
+    
+INF = float('inf')
+key = [INF] * V
+mst = [0] * V
+pq = []
+key[0] = 0
+heapq.heappush(pq, (0, 0))
+result = 0
+while pq:
+    k, node = heapq.heappop(pq)
+    if mst[node]:
+        continue
+    mst[node] = 1
+    result += k
+    for dest, wt in MAP[node]:
+        if not mst[dest] and key[dest] > wt:
+            key[dest] = wt
+            heapq.heqppush(pq, (key[dest], dest))
+```
+
+
 
 #### Time Complexity
 
