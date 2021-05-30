@@ -258,7 +258,7 @@ Java Collection 에서 ArrayList 도 내부적으로 RBT 로 이루어져 있고
 
 
 
-## Hash Table
+# Hash Table
 
 `hash`는 내부적으로 `배열`을 사용하여 데이터를 저장하기 때문에 빠른 검색 속도를 갖는다. 특정한 값을 Search 하는데 데이터 고유의 `인덱스`로 접근하게 되므로 average case 에 대하여 Time Complexity 가 O(1)이 되는 것이다.(항상 O(1)이 아니고 average case 에 대해서 O(1)인 것은 collision 때문이다.) 하지만 문제는 이 인덱스로 저장되는 `key`값이 불규칙하다는 것이다.
 
